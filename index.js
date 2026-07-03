@@ -127,12 +127,24 @@ client.on("messageCreate", async (message) => {
 
   /* SAY */
   if (cmd === "say") {
-    if (!args.length) {
-      return message.reply("❌ Message manquant.");
-    }
-
-    return message.channel.send(args.join(" "));
+  if (!args.length) {
+    return message.reply("❌ Message manquant.");
   }
+
+  const text = args.join(" ");
+
+  try {
+    // supprime le message de l'utilisateur
+    await message.delete().catch(() => {});
+
+    // envoie le message du bot
+    return message.channel.send(text);
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Erreur commande say.");
+  }
+}
 
   /* KICK */
   if (cmd === "kick") {
@@ -194,48 +206,51 @@ client.on("messageCreate", async (message) => {
 
   /* CLEAR */
   if (cmd === "clear") {
-    if (
-      !message.member.permissions.has(
-        PermissionsBitField.Flags.ManageMessages
-      )
-    ) {
-      return message.channel.send("❌ Pas la permission.");
-    }
-
-    const amount = parseInt(args[0]);
-
-    if (!amount || amount < 1 || amount > 100) {
-      return message.channel.send(
-        "❌ Choisis un nombre entre 1 et 100."
-      );
-    }
-
-    try {
-      const deleted = await message.channel.bulkDelete(
-        amount,
-        true
-      );
-
-      const embed = new EmbedBuilder()
-        .setColor("Green")
-        .setTitle("🧹 Messages supprimés")
-        .setDescription(
-          `**${deleted.size} messages supprimés**`
-        );
-
-      const msg = await message.channel.send({
-        embeds: [embed]
-      });
-
-      setTimeout(() => {
-        msg.delete().catch(() => {});
-      }, 3000);
-    } catch {
-      return message.channel.send(
-        "❌ Erreur lors de la suppression."
-      );
-    }
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageMessages
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
   }
+
+  let amount = parseInt(args[0]);
+
+  if (!amount || amount < 1) {
+    return message.channel.send("❌ Nombre invalide.");
+  }
+
+  if (amount > 1000) {
+    return message.channel.send("❌ Maximum 1000 messages.");
+  }
+
+  try {
+    let deletedTotal = 0;
+
+    while (amount > 0) {
+      const deleteAmount = amount > 100 ? 100 : amount;
+
+      const deleted = await message.channel.bulkDelete(deleteAmount, true);
+
+      deletedTotal += deleted.size;
+      amount -= deleteAmount;
+
+      if (deleted.size === 0) break;
+    }
+
+    const msg = await message.channel.send(
+      `🧹 ${deletedTotal} messages supprimés.`
+    );
+
+    setTimeout(() => {
+      msg.delete().catch(() => {});
+    }, 3000);
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Erreur suppression.");
+  }
+}
 
   /* SNIPE */
   if (cmd === "snipe") {
