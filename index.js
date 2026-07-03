@@ -77,55 +77,29 @@ client.on("messageDelete", (message) => {
 });
 
 /* ================= HELP ================= */
-if (cmd === "help") {
-    return message.channel.send({
-      embeds: [helpEmbed()]
-    });
-  }function helpEmbed() {
+function helpEmbed() {
   return new EmbedBuilder()
     .setColor("#5865F2")
     .setTitle("🤖 MENU DES COMMANDES")
-    .setDescription(
-      "Voici la liste des commandes disponibles sur le bot."
-    )
-
+    .setDescription("Voici la liste des commandes disponibles sur le bot.")
     .addFields(
       {
         name: "🧾 Utilitaires",
-        value:
-          "`+help`\n" +
-          "`+say <message>`\n" +
-          "`+pic <@user/ID>`"
+        value: "`+help`\n`+say <message>`\n`+pic <@user/ID>`"
       },
-
       {
         name: "🛡️ Modération",
-        value:
-          "`+kick <@user/ID>`\n" +
-          "`+ban <@user/ID>`\n" +
-          "`+clear <nombre>`\n" +
-          "`+clear <@user> <nombre>`\n" +
-          "`+addrole <@user/ID> <@rôle>`\n" +
-          "`+removerole <@user/ID> <@rôle>`\n" +
-          "`+derank <@user/ID>`"
+        value: "`+kick`\n`+ban`\n`+clear`\n`+addrole`\n`+removerole`\n`+derank`"
       },
-
       {
         name: "⚙️ Configuration",
-        value:
-          "`+autorole <@rôle>`"
+        value: "`+autorole`"
       },
-
       {
         name: "🕵️ Autres",
-        value:
-          "`+snipe`"
+        value: "`+snipe`"
       }
     )
-
-    .setFooter({
-      text: `Demandé par ${client.user.username}`
-    })
     .setTimestamp();
 }
 
@@ -468,7 +442,6 @@ if (cmd === "removerole") {
   }
 }
 
-/* DERANK */
 /* DERANK */
 if (cmd === "derank") {
   if (
