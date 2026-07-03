@@ -302,34 +302,27 @@ if (cmd === "pic" || cmd === "avatar") {
   }
 }
 
-  /* SNIPE */
+/* ================= SNIPE ================= */
 if (cmd === "snipe") {
   const snipe = snipes.get(message.channel.id);
 
   if (!snipe) {
-    return message.channel.send(
-      "❌ Aucun message supprimé dans ce salon."
-    );
+    return message.channel.send("Aucun message supprimé dans ce salon.");
   }
 
   const embed = new EmbedBuilder()
-    .setColor("#ff4da6")
-    .setTitle("🕵️ Dernier message supprimé")
+    .setColor("#2f3136")
     .setAuthor({
-      name: snipe.author,
+      name: `${snipe.author} • message supprimé`,
       iconURL: snipe.avatar
     })
-    .setDescription(
-      snipe.content || "*Message vide*"
-    )
+    .setDescription(snipe.content || "message vide")
     .setFooter({
-      text: `Salon : #${message.channel.name}`
+      text: `Salon: #${message.channel.name}`
     })
     .setTimestamp(snipe.time);
 
-  return message.channel.send({
-    embeds: [embed]
-  });
+  return message.channel.send({ embeds: [embed] });
 }
 
   /* AUTOROLE */
