@@ -238,9 +238,13 @@ client.on("messageCreate", async (message) => {
       if (deleted.size === 0) break;
     }
 
-    const msg = await message.channel.send(
-      `🧹 ${deletedTotal} messages supprimés.`
-    );
+    const embed = new EmbedBuilder()
+      .setColor("Green")
+      .setTitle("🧹 Nettoyage du salon")
+      .setDescription(`**${deletedTotal} messages supprimés**`)
+      .setTimestamp();
+
+    const msg = await message.channel.send({ embeds: [embed] });
 
     setTimeout(() => {
       msg.delete().catch(() => {});
