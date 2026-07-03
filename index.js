@@ -124,7 +124,88 @@ client.on("messageCreate", async (message) => {
     return message.channel.send({
       embeds: [helpEmbed()]
     });
+  }function helpEmbed() {
+  return new EmbedBuilder()
+    .setColor("#5865F2")
+    .setTitle("🤖 MENU DES COMMANDES")
+    .setDescription(
+      "Voici la liste des commandes disponibles sur le bot."
+    )
+
+    .addFields(
+      {
+        name: "🧾 Utilitaires",
+        value:
+          "`+help`\n" +
+          "`+say <message>`\n" +
+          "`+pic <@user/ID>`"
+      },
+
+      {
+        name: "🛡️ Modération",
+        value:
+          "`+kick <@user/ID>`\n" +
+          "`+ban <@user/ID>`\n" +
+          "`+clear <nombre>`\n" +
+          "`+clear <@user> <nombre>`\n" +
+          "`+addrole <@user/ID> <@rôle>`\n" +
+          "`+removerole <@user/ID> <@rôle>`\n" +
+          "`+derank <@user/ID>`"
+      },
+
+      {
+        name: "⚙️ Configuration",
+        value:
+          "`+autorole <@rôle>`"
+      },
+
+      {
+        name: "🕵️ Autres",
+        value:
+          "`+snipe`"
+      }
+    )
+
+    .setFooter({
+      text: `Demandé par ${client.user.username}`
+    })
+    .setTimestamp();
+}
+
+/* PIC */
+if (cmd === "pic" || cmd === "avatar") {
+  let member =
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0]);
+
+  if (!member && args[0]) {
+    try {
+      member = await message.guild.members.fetch(args[0]);
+    } catch {}
   }
+
+  if (!member) {
+    member = message.member;
+  }
+
+  const embed = new EmbedBuilder()
+    .setColor("#5865F2")
+    .setTitle(`🖼️ Avatar de ${member.user.tag}`)
+    .setImage(
+      member.user.displayAvatarURL({
+        size: 4096,
+        extension: "png"
+      })
+    )
+    .setFooter({
+      text: `ID : ${member.user.id}`
+    })
+    .setTimestamp();
+
+  return message.channel.send({
+    embeds: [embed]
+  });
+}
 
   /* SAY */
   if (cmd === "say") {
