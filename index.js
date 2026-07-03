@@ -1,5 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
+const ticketCategoryName = "🎫 tickets";
 
 const {
   Client,
@@ -225,26 +226,20 @@ client.on("messageCreate", async (message) => {
   }
 
   try {
-    let deletedTotal = 0;
+    // ❌ IMPORTANT : on supprime le message de commande d'abord
+    await message.delete().catch(() => {});
 
-    while (amount > 0) {
-      const deleteAmount = amount > 100 ? 100 : amount;
+    const fetched = await message.channel.messages.fetch({
+      limit: amount
+    });
 
-      const deleted = await message.channel.bulkDelete(deleteAmount, true);
+    const filtered = fetched.filter(m => !m.pinned);
 
-      deletedTotal += deleted.size;
-      amount -= deleteAmount;
+    await message.channel.bulkDelete(filtered, true);
 
-      if (deleted.size === 0) break;
-    }
-
-    const embed = new EmbedBuilder()
-      .setColor("Green")
-      .setTitle("🧹 Nettoyage du salon")
-      .setDescription(`**${deletedTotal} messages supprimés**`)
-      .setTimestamp();
-
-    const msg = await message.channel.send({ embeds: [embed] });
+    const msg = await message.channel.send(
+      `🧹 ${filtered.size} messages supprimés.`
+    );
 
     setTimeout(() => {
       msg.delete().catch(() => {});
@@ -252,7 +247,7 @@ client.on("messageCreate", async (message) => {
 
   } catch (err) {
     console.error(err);
-    return message.channel.send("❌ Erreur suppression.");
+    return message.channel.send("❌ Erreur clear.");
   }
 }
 
