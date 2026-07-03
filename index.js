@@ -1,0 +1,203 @@
+require("dotenv").config();
+
+const {
+  Client,
+  GatewayIntentBits,
+  PermissionsBitField,
+  EmbedBuilder
+} = require("discord.js");
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers
+  ]
+});
+
+const prefix = "+";
+
+/* ================= SNIPE ================= */
+let lastDeleted = null;
+
+/* ================= READY ================= */
+client.once("ready", () => {
+  console.log(`✅ Connecté : ${client.user.tag}`);
+
+  client.user.setPresence({
+    status: "dnd"
+  });
+});
+
+/* ================= MESSAGE DELETE ================= */
+client.on("messageDelete", (message) => {
+  if (!message.guild) return;
+  if (!message.author || message.author.bot) return;
+
+  lastDeleted = {
+    content: message.content,
+    author: message.author.tag,
+    channel: message.channel.name,
+    time: new Date()
+  };
+});
+
+/* ================= HELP ================= */
+function helpEmbed() {
+  return new EmbedBuilder()
+    .setColor("#5865F2")
+    .setTitle("🤖 MENU DES COMMANDES")
+    .addFields(
+      {
+        name: "🧾 Utilitaires",
+        value: "`+say <message>`"
+      },
+      {
+        name: "🛡️ Modération",
+        value: "`+kick <@user>`\n`+ban <@user>`\n`+clear <nombre>`"
+      },
+      {
+        name: "📩 Social",
+        value: "`+dmall <message>`"
+      },
+      {
+        name: "🕵️ Autre",
+        value: "`+snipe`"
+      }
+    )
+    .setTimestamp();
+}
+
+/* ================= GET MEMBER ================= */
+function getMember(message, args) {
+  return (
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0])
+  );
+}
+
+/* ================= COMMANDES ================= */
+client.on("messageCreate", async (message) => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const cmd = args.shift()?.toLowerCase();
+
+  /* -------- HELP -------- */
+  if (cmd === "help") {
+    return message.channel.send({ embeds: [helpEmbed()] });
+  }
+
+  /* -------- SAY -------- */
+  if (cmd === "say") {
+    if (!args.length) return message.reply("❌ Message manquant.");
+    return message.channel.send(args.join(" "));
+  }
+
+  /* -------- KICK -------- */
+  if (cmd === "kick") {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+      return message.channel.send("❌ Pas la permission.");
+    }
+
+    const member = getMember(message, args);
+    if (!member) return message.channel.send("❌ Membre introuvable.");
+
+    await member.kick().catch(() => {
+      return message.channel.send("❌ Impossible de kick.");
+    });
+
+    return message.channel.send(`👢 ${member.user.tag} a été kick.`);
+  }
+
+  /* -------- BAN -------- */
+  if (cmd === "ban") {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+      return message.channel.send("❌ Pas la permission.");
+    }
+
+    const member = getMember(message, args);
+    if (!member) return message.channel.send("❌ Membre introuvable.");
+
+    await member.ban().catch(() => {
+      return message.channel.send("❌ Impossible de ban.");
+    });
+
+    return message.channel.send(`🔨 ${member.user.tag} a été ban.`);
+  }
+
+  /* -------- CLEAR -------- */
+  if (cmd === "clear") {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+      return message.channel.send("❌ Pas la permission.");
+    }
+
+    const amount = parseInt(args[0]);
+    if (!amount || amount < 1) {
+      return message.channel.send("❌ Nombre invalide.");
+    }
+
+    try {
+      const deleted = await message.channel.bulkDelete(amount, true);
+
+      const embed = new EmbedBuilder()
+        .setColor("Green")
+        .setTitle("🧹 Messages supprimés")
+        .setDescription(`**${deleted.size} messages supprimés**`);
+
+      const msg = await message.channel.send({ embeds: [embed] });
+
+      setTimeout(() => msg.delete().catch(() => {}), 3000);
+
+    } catch (err) {
+      console.error(err);
+      return message.channel.send("❌ Erreur suppression.");
+    }
+  }
+
+  /* -------- SNIPE (TON STYLE ORIGINAL) -------- */
+  if (cmd === "snipe") {
+    if (!lastDeleted) {
+      return message.channel.send("❌ Aucun message supprimé.");
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor("#ff4da6")
+      .setAuthor({
+        name: `${lastDeleted.author} • Message supprimé`,
+        iconURL: message.author.displayAvatarURL()
+      })
+      .setDescription(lastDeleted.content || "*message vide*")
+      .setFooter({
+        text: `Salon: ${lastDeleted.channel} • ${new Date(lastDeleted.time).toLocaleString()}`
+      })
+      .setTimestamp();
+
+    return message.channel.send({ embeds: [embed] });
+  }
+
+  /* -------- DMALL -------- */
+  if (cmd === "dmall") {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return message.channel.send("❌ Pas la permission.");
+    }
+
+    const text = args.join(" ");
+    if (!text) return message.channel.send("❌ Message manquant.");
+
+    const members = await message.guild.members.fetch();
+
+    members.forEach((m) => {
+      if (!m.user.bot) {
+        m.send(text).catch(() => {});
+      }
+    });
+
+    message.channel.send("📨 DM envoyés aux membres.");
+  }
+});
+
+/* ================= LOGIN ================= */
+client.login(process.env.TOKEN);
