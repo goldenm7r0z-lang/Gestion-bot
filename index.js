@@ -339,6 +339,53 @@ client.on("messageCreate", async (message) => {
     return message.channel.send("❌ Erreur lors de l'ajout du rôle.");
   }
 }
+
+if (cmd === "removerole") {
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageRoles
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  const userId = args[0];
+  const role = message.mentions.roles.first();
+
+  if (!userId) {
+    return message.channel.send("❌ Donne un ID utilisateur.");
+  }
+
+  if (!role) {
+    return message.channel.send("❌ Mentionne un rôle.");
+  }
+
+  try {
+    const member = await message.guild.members.fetch(userId).catch(() => null);
+
+    if (!member) {
+      return message.channel.send("❌ Utilisateur introuvable sur ce serveur.");
+    }
+
+    if (!member.roles.cache.has(role.id)) {
+      return message.channel.send("❌ Ce membre n'a pas ce rôle.");
+    }
+
+    if (!member.manageable) {
+      return message.channel.send("❌ Je ne peux pas modifier ce membre (rôle trop haut).");
+    }
+
+    await member.roles.remove(role);
+
+    return message.channel.send(
+      `✅ Le rôle ${role} a été retiré à ${member.user.tag}.`
+    );
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Erreur lors du retrait du rôle.");
+  }
+}
 });
 
 /* ================= LOGIN ================= */
