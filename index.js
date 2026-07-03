@@ -20,8 +20,8 @@ const client = new Client({
 
 const prefix = "+";
 
-/* ================= SNIPE ================= */
-let lastDeleted = null;
+/***************** SNIPE *****************/
+const snipes = new Map();
 
 /* ================= AUTOROLES ================= */
 let autoRoles = {};
@@ -65,62 +65,19 @@ client.on("guildMemberAdd", async (member) => {
 /* ================= MESSAGE DELETE ================= */
 client.on("messageDelete", (message) => {
   if (!message.guild) return;
-  if (!message.author || message.author.bot) return;
+  if (!message.author) return;
+  if (message.author.bot) return;
 
-  lastDeleted = {
+  snipes.set(message.channel.id, {
     content: message.content,
     author: message.author.tag,
-    channel: message.channel.name,
+    avatar: message.author.displayAvatarURL(),
     time: new Date()
-  };
+  });
 });
 
 /* ================= HELP ================= */
-function helpEmbed() {
-  return new EmbedBuilder()
-    .setColor("#5865F2")
-    .setTitle("🤖 MENU DES COMMANDES")
-    .addFields(
-      {
-        name: "🧾 Utilitaires",
-        value: "`+say <message>`"
-      },
-      {
-  name: "🛡️ Modération",
-  value:
-    "`+kick <@user>`\n`+ban <@user>`\n`+clear <nombre>`\n`+addrole <id> <@rôle>`\n`+removerole <id> <@rôle>`"
-},
-      {
-        name: "🕵️ Autre",
-        value: "`+snipe`"
-      }
-    )
-    .setTimestamp();
-}
-
-/* ================= GET MEMBER ================= */
-function getMember(message, args) {
-  return (
-    message.mentions.members.first() ||
-    message.guild.members.cache.get(args[0])
-  );
-}
-
-/* ================= COMMANDES ================= */
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-  if (!message.guild) return;
-  if (!message.content.startsWith(prefix)) return;
-
-  const args = message.content
-    .slice(prefix.length)
-    .trim()
-    .split(/ +/);
-
-  const cmd = args.shift()?.toLowerCase();
-
-  /* HELP */
-  if (cmd === "help") {
+if (cmd === "help") {
     return message.channel.send({
       embeds: [helpEmbed()]
     });
@@ -170,6 +127,34 @@ client.on("messageCreate", async (message) => {
       text: `Demandé par ${client.user.username}`
     })
     .setTimestamp();
+}
+
+/* ================= GET MEMBER ================= */
+function getMember(message, args) {
+  return (
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0])
+  );
+}
+
+/* ================= COMMANDES ================= */
+client.on("messageCreate", async (message) => {
+  if (message.author.bot) return;
+  if (!message.guild) return;
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content
+    .slice(prefix.length)
+    .trim()
+    .split(/ +/);
+
+  const cmd = args.shift()?.toLowerCase();
+
+  /* HELP */
+  if (cmd === "help") {
+  return message.channel.send({
+    embeds: [helpEmbed()]
+  });
 }
 
 /* PIC */
@@ -347,33 +332,34 @@ if (cmd === "pic" || cmd === "avatar") {
 }
 
   /* SNIPE */
-  if (cmd === "snipe") {
-    if (!lastDeleted) {
-      return message.channel.send(
-        "❌ Aucun message supprimé."
-      );
-    }
+if (cmd === "snipe") {
+  const snipe = snipes.get(message.channel.id);
 
-    const embed = new EmbedBuilder()
-      .setColor("#ff4da6")
-      .setAuthor({
-        name: `${lastDeleted.author} • Message supprimé`,
-        iconURL: message.author.displayAvatarURL()
-      })
-      .setDescription(
-        lastDeleted.content || "*message vide*"
-      )
-      .setFooter({
-        text: `Salon: ${lastDeleted.channel} • ${new Date(
-          lastDeleted.time
-        ).toLocaleString()}`
-      })
-      .setTimestamp();
-
-    return message.channel.send({
-      embeds: [embed]
-    });
+  if (!snipe) {
+    return message.channel.send(
+      "❌ Aucun message supprimé dans ce salon."
+    );
   }
+
+  const embed = new EmbedBuilder()
+    .setColor("#ff4da6")
+    .setTitle("🕵️ Dernier message supprimé")
+    .setAuthor({
+      name: snipe.author,
+      iconURL: snipe.avatar
+    })
+    .setDescription(
+      snipe.content || "*Message vide*"
+    )
+    .setFooter({
+      text: `Salon : #${message.channel.name}`
+    })
+    .setTimestamp(snipe.time);
+
+  return message.channel.send({
+    embeds: [embed]
+  });
+}
 
   /* AUTOROLE */
   if (cmd === "autorole") {
