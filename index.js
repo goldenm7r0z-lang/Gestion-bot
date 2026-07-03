@@ -298,46 +298,47 @@ client.on("messageCreate", async (message) => {
 
   /* ADDROLE */
   if (cmd === "addrole") {
-    if (
-      !message.member.permissions.has(
-        PermissionsBitField.Flags.ManageRoles
-      )
-    ) {
-      return message.channel.send("❌ Pas la permission.");
-    }
-
-    const userId = args[0];
-    const role = message.mentions.roles.first();
-
-    if (!userId) {
-      return message.channel.send(
-        "❌ Donne un ID utilisateur."
-      );
-    }
-
-    if (!role) {
-      return message.channel.send(
-        "❌ Mentionne un rôle."
-      );
-    }
-
-    try {
-      const member =
-        await message.guild.members.fetch(userId);
-
-      await member.roles.add(role);
-
-      return message.channel.send(
-        `✅ ${role} ajouté à ${member.user.tag}.`
-      );
-    } catch (err) {
-      console.error(err);
-
-      return message.channel.send(
-        "❌ Utilisateur introuvable ou rôle impossible à ajouter."
-      );
-    }
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageRoles
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
   }
+
+  const userId = args[0];
+  const role = message.mentions.roles.first();
+
+  if (!userId) {
+    return message.channel.send("❌ Donne un ID utilisateur.");
+  }
+
+  if (!role) {
+    return message.channel.send("❌ Mentionne un rôle.");
+  }
+
+  try {
+    const member = await message.guild.members.fetch(userId).catch(() => null);
+
+    if (!member) {
+      return message.channel.send("❌ Utilisateur introuvable sur ce serveur.");
+    }
+
+    if (!member.manageable) {
+      return message.channel.send("❌ Je ne peux pas modifier ce membre (rôle trop haut ou permissions).");
+    }
+
+    await member.roles.add(role);
+
+    return message.channel.send(
+      `✅ ${role} ajouté à ${member.user.tag}.`
+    );
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Erreur lors de l'ajout du rôle.");
+  }
+}
 });
 
 /* ================= LOGIN ================= */
