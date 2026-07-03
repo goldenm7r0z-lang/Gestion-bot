@@ -85,10 +85,10 @@ function helpEmbed() {
         value: "`+say <message>`"
       },
       {
-        name: "🛡️ Modération",
-        value:
-          "`+kick <@user>`\n`+ban <@user>`\n`+clear <nombre>`\n`+autorole <@rôle>`\n`+addrole <id> <@rôle>`"
-      },
+  name: "🛡️ Modération",
+  value:
+    "`+kick <@user>`\n`+ban <@user>`\n`+clear <nombre>`\n`+addrole <id> <@rôle>`\n`+removerole <id> <@rôle>`"
+},
       {
         name: "🕵️ Autre",
         value: "`+snipe`"
