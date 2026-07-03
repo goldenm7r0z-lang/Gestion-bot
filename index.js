@@ -400,6 +400,77 @@ if (cmd === "removerole") {
     return message.channel.send("❌ Erreur retrait rôle.");
   }
 }
+
+/* DERANK */
+/* DERANK */
+if (cmd === "derank") {
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageRoles
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  let member =
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0]);
+
+  if (!member && args[0]) {
+    try {
+      member = await message.guild.members.fetch(args[0]);
+    } catch {}
+  }
+
+  if (!member) {
+    return message.channel.send(
+      "❌ Utilisateur introuvable. Utilise une mention ou un ID Discord."
+    );
+  }
+
+  if (!member.manageable) {
+    return message.channel.send(
+      "❌ Je ne peux pas modifier ce membre."
+    );
+  }
+
+  const highestRole = member.roles.cache
+    .filter(role => role.id !== message.guild.id)
+    .sort((a, b) => b.position - a.position)
+    .first();
+
+  if (!highestRole) {
+    return message.channel.send(
+      "❌ Ce membre n'a aucun rôle à retirer."
+    );
+  }
+
+  try {
+    await member.roles.remove(highestRole);
+
+    const embed = new EmbedBuilder()
+      .setColor("#ff0000")
+      .setTitle("⬇️ Derank effectué")
+      .setDescription(
+        `👤 **Membre :** ${member}\n🗑️ **Rôle retiré :** ${highestRole}\n\n✅ ${member} a été derank avec succès.`
+      )
+      .setThumbnail(member.user.displayAvatarURL())
+      .setFooter({
+        text: `Action effectuée par ${message.author.tag}`
+      })
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send(
+      "❌ Impossible de retirer le rôle."
+    );
+  }
+}
 });
 
 /* ================= LOGIN ================= */
