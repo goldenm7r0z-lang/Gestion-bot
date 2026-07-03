@@ -306,37 +306,30 @@ client.on("messageCreate", async (message) => {
     return message.channel.send("❌ Pas la permission.");
   }
 
-  const userId = args[0];
+  const member = message.mentions.members.first();
   const role = message.mentions.roles.first();
 
-  if (!userId) {
-    return message.channel.send("❌ Donne un ID utilisateur.");
+  if (!member) {
+    return message.channel.send("❌ Mentionne un utilisateur.");
   }
 
   if (!role) {
     return message.channel.send("❌ Mentionne un rôle.");
   }
 
+  if (!member.manageable) {
+    return message.channel.send("❌ Je ne peux pas modifier ce membre.");
+  }
+
   try {
-    const member = await message.guild.members.fetch(userId).catch(() => null);
-
-    if (!member) {
-      return message.channel.send("❌ Utilisateur introuvable sur ce serveur.");
-    }
-
-    if (!member.manageable) {
-      return message.channel.send("❌ Je ne peux pas modifier ce membre (rôle trop haut ou permissions).");
-    }
-
     await member.roles.add(role);
 
     return message.channel.send(
       `✅ ${role} ajouté à ${member.user.tag}.`
     );
-
   } catch (err) {
     console.error(err);
-    return message.channel.send("❌ Erreur lors de l'ajout du rôle.");
+    return message.channel.send("❌ Erreur ajout rôle.");
   }
 }
 
@@ -349,41 +342,34 @@ if (cmd === "removerole") {
     return message.channel.send("❌ Pas la permission.");
   }
 
-  const userId = args[0];
+  const member = message.mentions.members.first();
   const role = message.mentions.roles.first();
 
-  if (!userId) {
-    return message.channel.send("❌ Donne un ID utilisateur.");
+  if (!member) {
+    return message.channel.send("❌ Mentionne un utilisateur.");
   }
 
   if (!role) {
     return message.channel.send("❌ Mentionne un rôle.");
   }
 
+  if (!member.roles.cache.has(role.id)) {
+    return message.channel.send("❌ Ce membre n'a pas ce rôle.");
+  }
+
+  if (!member.manageable) {
+    return message.channel.send("❌ Je ne peux pas modifier ce membre.");
+  }
+
   try {
-    const member = await message.guild.members.fetch(userId).catch(() => null);
-
-    if (!member) {
-      return message.channel.send("❌ Utilisateur introuvable sur ce serveur.");
-    }
-
-    if (!member.roles.cache.has(role.id)) {
-      return message.channel.send("❌ Ce membre n'a pas ce rôle.");
-    }
-
-    if (!member.manageable) {
-      return message.channel.send("❌ Je ne peux pas modifier ce membre (rôle trop haut).");
-    }
-
     await member.roles.remove(role);
 
     return message.channel.send(
-      `✅ Le rôle ${role} a été retiré à ${member.user.tag}.`
+      `✅ ${role} retiré à ${member.user.tag}.`
     );
-
   } catch (err) {
     console.error(err);
-    return message.channel.send("❌ Erreur lors du retrait du rôle.");
+    return message.channel.send("❌ Erreur retrait rôle.");
   }
 }
 });
