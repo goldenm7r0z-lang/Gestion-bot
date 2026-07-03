@@ -215,7 +215,15 @@ client.on("messageCreate", async (message) => {
     return message.channel.send("❌ Pas la permission.");
   }
 
-  let amount = parseInt(args[0]);
+  let targetUser = message.mentions.users.first();
+  let amount;
+
+  // Si premier argument est un user mentionné
+  if (targetUser) {
+    amount = parseInt(args[1]);
+  } else {
+    amount = parseInt(args[0]);
+  }
 
   if (!amount || amount < 1) {
     return message.channel.send("❌ Nombre invalide.");
@@ -226,19 +234,25 @@ client.on("messageCreate", async (message) => {
   }
 
   try {
-    // ❌ IMPORTANT : on supprime le message de commande d'abord
     await message.delete().catch(() => {});
 
     const fetched = await message.channel.messages.fetch({
-      limit: amount
+      limit: 100
     });
 
-    const filtered = fetched.filter(m => !m.pinned);
+    let filtered = fetched.filter(m => !m.pinned);
+
+    // Si user mentionné → filtrer par user
+    if (targetUser) {
+      filtered = filtered.filter(m => m.author.id === targetUser.id);
+    }
+
+    filtered = filtered.first(amount);
 
     await message.channel.bulkDelete(filtered, true);
 
     const msg = await message.channel.send(
-      `🧹 ${filtered.size} messages supprimés.`
+      `🧹 ${filtered.length} messages supprimés`
     );
 
     setTimeout(() => {
