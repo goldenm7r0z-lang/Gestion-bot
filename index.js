@@ -564,12 +564,12 @@ if (cmd === "lock") {
 /* DMALL */
 if (cmd === "dmall") {
 
-  if (
-    !message.member.permissions.has(
-      PermissionsBitField.Flags.Administrator
-    )
-  ) {
-    return message.channel.send("❌ Pas la permission.");
+  const OWNER_ID = "1256656201488531550";
+
+  if (message.author.id !== OWNER_ID) {
+    return message.channel.send(
+      "❌ Cette commande est réservée au propriétaire du bot."
+    );
   }
 
   const texte = args.join(" ");
@@ -585,6 +585,9 @@ if (cmd === "dmall") {
 
   await message.guild.members.fetch();
 
+  const attente = ms =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
   for (const member of message.guild.members.cache.values()) {
 
     if (member.user.bot) continue;
@@ -593,10 +596,13 @@ if (cmd === "dmall") {
 
       const embed = new EmbedBuilder()
         .setColor("#5865F2")
-        .setTitle(`Message de ${message.guild.name}`)
+        .setTitle(message.guild.name)
         .setDescription(texte)
+        .setThumbnail(
+          message.guild.iconURL({ dynamic: true })
+        )
         .setFooter({
-          text: `Envoyé par ${message.author.tag}`
+          text: `Annonce envoyée par ${message.author.tag}`
         })
         .setTimestamp();
 
@@ -606,9 +612,7 @@ if (cmd === "dmall") {
 
       succes++;
 
-      await new Promise(resolve =>
-        setTimeout(resolve, 1000)
-      );
+      await attente(1000);
 
     } catch {
       erreurs++;
@@ -619,7 +623,7 @@ if (cmd === "dmall") {
     .setColor("#57F287")
     .setTitle("Envoi terminé")
     .setDescription(
-      `📨 Envoyés : **${succes}**\n❌ Échecs : **${erreurs}**`
+      `📨 Messages envoyés : **${succes}**\n❌ Échecs : **${erreurs}**`
     )
     .setTimestamp();
 
