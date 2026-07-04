@@ -83,7 +83,9 @@ function helpEmbed() {
     .setTitle("🤖 MENU DES COMMANDES")
     .setDescription(
       "**🧾 Utilitaires**\n" +
-      "`+help`\n`+say <message>`\n`+pic <@user/ID>`\n\n" +
+      "`+help`\n" +
+      "`+say <message>`\n" +
+      "`+pic <@user/ID>`\n\n" +
 
       "**🛡️ Modération**\n" +
       "`+kick <@user/ID>`\n" +
@@ -94,8 +96,11 @@ function helpEmbed() {
       "`+removerole <@user/ID> <@rôle>`\n" +
       "`+derank <@user/ID>`\n" +
       "`+lock`\n" +
-      "`+unlock`\n" +
-      "`+annonce <message>`\n\n" +
+      "`+unlock`\n\n" +
+
+      "**📢 Communication**\n" +
+      "`+annonce <message>`\n" +
+      "`+dmall <message>`\n\n" +
 
       "**⚙️ Configuration**\n" +
       "`+autorole <@rôle>`\n\n" +
@@ -104,7 +109,7 @@ function helpEmbed() {
       "`+snipe`"
     )
     .setFooter({
-      text: "Bot Help Menu"
+      text: `Demandé via ${client.user.username}`
     })
     .setTimestamp();
 }
@@ -554,6 +559,73 @@ if (cmd === "lock") {
     console.error(err);
     return message.channel.send("❌ Impossible de verrouiller le salon.");
   }
+}
+
+/* DMALL */
+if (cmd === "dmall") {
+
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.Administrator
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  const texte = args.join(" ");
+
+  if (!texte) {
+    return message.channel.send(
+      "❌ Utilisation : +dmall <message>"
+    );
+  }
+
+  let succes = 0;
+  let erreurs = 0;
+
+  await message.guild.members.fetch();
+
+  for (const member of message.guild.members.cache.values()) {
+
+    if (member.user.bot) continue;
+
+    try {
+
+      const embed = new EmbedBuilder()
+        .setColor("#5865F2")
+        .setTitle(`Message de ${message.guild.name}`)
+        .setDescription(texte)
+        .setFooter({
+          text: `Envoyé par ${message.author.tag}`
+        })
+        .setTimestamp();
+
+      await member.send({
+        embeds: [embed]
+      });
+
+      succes++;
+
+      await new Promise(resolve =>
+        setTimeout(resolve, 1000)
+      );
+
+    } catch {
+      erreurs++;
+    }
+  }
+
+  const embed = new EmbedBuilder()
+    .setColor("#57F287")
+    .setTitle("Envoi terminé")
+    .setDescription(
+      `📨 Envoyés : **${succes}**\n❌ Échecs : **${erreurs}**`
+    )
+    .setTimestamp();
+
+  return message.channel.send({
+    embeds: [embed]
+  });
 }
 
 /* UNLOCK */
