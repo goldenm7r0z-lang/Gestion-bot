@@ -288,13 +288,18 @@ if (cmd === "pic" || cmd === "avatar") {
 
     await message.channel.bulkDelete(filtered, true);
 
-    const msg = await message.channel.send(
-      `🧹 ${filtered.length} messages supprimés`
-    );
+    const embed = new EmbedBuilder()
+  .setColor("#57F287")
+  .setDescription(`🧹 **${filtered.length} messages supprimés**`)
+  .setTimestamp();
 
-    setTimeout(() => {
-      msg.delete().catch(() => {});
-    }, 3000);
+const msg = await message.channel.send({
+  embeds: [embed]
+});
+
+setTimeout(() => {
+  msg.delete().catch(() => {});
+}, 1000);
 
   } catch (err) {
     console.error(err);
