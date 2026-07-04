@@ -86,7 +86,16 @@ function helpEmbed() {
       "`+help`\n`+say <message>`\n`+pic <@user/ID>`\n\n" +
 
       "**🛡️ Modération**\n" +
-      "`+kick <@user/ID>`\n`+ban <@user/ID>`\n`+clear <nombre>`\n`+clear <@user> <nombre>`\n`+addrole <@user/ID> <@rôle>`\n`+removerole <@user/ID> <@rôle>`\n`+derank <@user/ID>`\n\n" +
+      "`+kick <@user/ID>`\n" +
+      "`+ban <@user/ID>`\n" +
+      "`+clear <nombre>`\n" +
+      "`+clear <@user> <nombre>`\n" +
+      "`+addrole <@user/ID> <@rôle>`\n" +
+      "`+removerole <@user/ID> <@rôle>`\n" +
+      "`+derank <@user/ID>`\n" +
+      "`+lock`\n" +
+      "`+unlock`\n" +
+      "`+annonce <message>`\n\n" +
 
       "**⚙️ Configuration**\n" +
       "`+autorole <@rôle>`\n\n" +
@@ -505,6 +514,124 @@ if (cmd === "derank") {
       "❌ Impossible de retirer le rôle."
     );
   }
+}
+
+/* LOCK */
+if (cmd === "lock") {
+
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageChannels
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  try {
+    await message.channel.permissionOverwrites.edit(
+      message.guild.roles.everyone,
+      {
+        SendMessages: false
+      }
+    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#ff0000")
+      .setTitle("Salon verrouillé")
+      .setDescription(
+        `🔒 ${message.channel} a été verrouillé.`
+      )
+      .setFooter({
+        text: `Par ${message.author.tag}`
+      })
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Impossible de verrouiller le salon.");
+  }
+}
+
+/* UNLOCK */
+if (cmd === "unlock") {
+
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageChannels
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  try {
+    await message.channel.permissionOverwrites.edit(
+      message.guild.roles.everyone,
+      {
+        SendMessages: null
+      }
+    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#57F287")
+      .setTitle("Salon déverrouillé")
+      .setDescription(
+        `🔓 ${message.channel} a été réouvert.`
+      )
+      .setFooter({
+        text: `Par ${message.author.tag}`
+      })
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send("❌ Impossible de déverrouiller le salon.");
+  }
+}
+
+/* ANNONCE */
+if (cmd === "annonce") {
+
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.Administrator
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  const texte = args.join(" ");
+
+  if (!texte) {
+    return message.channel.send(
+      "❌ Écris un message."
+    );
+  }
+
+  await message.delete().catch(() => {});
+
+  const embed = new EmbedBuilder()
+    .setColor("#5865F2")
+    .setTitle("ANNONCE")
+    .setDescription(texte)
+    .setThumbnail(
+      message.guild.iconURL({ dynamic: true })
+    )
+    .setFooter({
+      text: `${message.guild.name}`
+    })
+    .setTimestamp();
+
+  return message.channel.send({
+    embeds: [embed]
+  });
 }
 });
 
