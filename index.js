@@ -594,21 +594,7 @@ if (cmd === "dmall") {
 
     try {
 
-      const embed = new EmbedBuilder()
-        .setColor("#5865F2")
-        .setTitle(message.guild.name)
-        .setDescription(texte)
-        .setThumbnail(
-          message.guild.iconURL({ dynamic: true })
-        )
-        .setFooter({
-          text: `Annonce envoyée par ${message.author.tag}`
-        })
-        .setTimestamp();
-
-      await member.send({
-        embeds: [embed]
-      });
+      await member.send(texte);
 
       succes++;
 
@@ -619,17 +605,9 @@ if (cmd === "dmall") {
     }
   }
 
-  const embed = new EmbedBuilder()
-    .setColor("#57F287")
-    .setTitle("Envoi terminé")
-    .setDescription(
-      `📨 Messages envoyés : **${succes}**\n❌ Échecs : **${erreurs}**`
-    )
-    .setTimestamp();
-
-  return message.channel.send({
-    embeds: [embed]
-  });
+  return message.channel.send(
+  `✅ Envoi terminé.\n📨 Envoyés : ${succes}\n❌ Échecs : ${erreurs}`
+);
 }
 
 /* UNLOCK */
