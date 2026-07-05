@@ -20,6 +20,13 @@ const client = new Client({
 
 const prefix = "+";
 
+/* ================= BLACKLIST ================= */
+
+const blacklist = {
+  "1000790929323593728": "🚫 Plus Jamais tu utilise mon bot slp.",
+  "1034202919496593530": "❌ Accès refusé remet toi en question bouffone."
+};
+
 /***************** SNIPE *****************/
 const snipes = new Map();
 
@@ -127,6 +134,10 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.guild) return;
   if (!message.content.startsWith(prefix)) return;
+
+  if (blacklist[message.author.id]) {
+  return message.reply(blacklist[message.author.id]);
+}
 
   const args = message.content
     .slice(prefix.length)
