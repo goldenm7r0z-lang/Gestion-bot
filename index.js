@@ -23,8 +23,8 @@ const prefix = "+";
 /* ================= BLACKLIST ================= */
 
 const blacklist = {
-  "1000790929323593728": "🚫 Plus Jamais tu utilise mon bot slp.",
-  "1034202919496593530": "❌ Accès refusé remet toi en question bouffone."
+  "1000790929323593728": "🚫 T'es BL du code remet toi en question.",
+  "1034202919496593530": "❌ Accès refusé remet toi en question."
 };
 
 /***************** SNIPE *****************/
