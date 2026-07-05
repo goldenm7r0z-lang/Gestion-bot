@@ -23,8 +23,8 @@ const prefix = "+";
 /* ================= BLACKLIST ================= */
 
 const blacklist = {
-  "1000790929323593728": "🚫 T'es BL du code remet toi en question.",
-  "1034202919496593530": "❌ Accès refusé remet toi en question."
+  "ID Discord": "🚫 T'es BL du code remet toi en question.",
+  "ID Discord": "❌ Accès refusé remet toi en question."
 };
 
 /***************** SNIPE *****************/
