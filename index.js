@@ -683,33 +683,25 @@ if (cmd === "close") {
     return message.channel.send("❌ Pas la permission.");
   }
 
-  try {
+  const embed = new EmbedBuilder()
+    .setColor("#ff0000")
+    .setTitle("🔒 Fermeture du salon")
+    .setDescription(
+      "Ce salon sera supprimé dans 5 secondes."
+    )
+    .setTimestamp();
 
-    await message.channel.permissionOverwrites.edit(
-      message.guild.roles.everyone,
-      {
-        ViewChannel: false
-      }
-    );
+  await message.channel.send({
+    embeds: [embed]
+  });
 
-    const embed = new EmbedBuilder()
-      .setColor("#ED4245")
-      .setTitle("Salon fermé")
-      .setDescription(
-        `🔒 ${message.channel} a été fermé.`
-      )
-      .setTimestamp();
-
-    return message.channel.send({
-      embeds: [embed]
-    });
-
-  } catch (err) {
-    console.error(err);
-    return message.channel.send(
-      "❌ Impossible de fermer ce salon."
-    );
-  }
+  setTimeout(async () => {
+    try {
+      await message.channel.delete();
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5000);
 }
 
 /* DMALL */
