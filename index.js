@@ -101,22 +101,23 @@ function helpEmbed() {
       "`+clear <@user> <nombre>`\n" +
       "`+addrole <@user/ID> <@rôle>`\n" +
       "`+removerole <@user/ID> <@rôle>`\n" +
-      "`+derank <@user/ID>`\n" +
-      "`+lock`\n" +
-      "`+unlock`\n\n" +
+      "`+derank <@user/ID>`\n\n" +
 
-      "**📢 Communication**\n" +
-      "`+annonce <message>`\n" +
-      "`+dmall <message>`\n\n" +
+      "**📁 Salon**\n" +
+      "`+lock`\n" +
+      "`+unlock`\n" +
+      "`+add <@user/ID>`\n" +
+      "`+remove <@user/ID>`\n\n" +
 
       "**⚙️ Configuration**\n" +
       "`+autorole <@rôle>`\n\n" +
 
       "**🕵️ Autres**\n" +
-      "`+snipe`"
+      "`+snipe`\n" +
+      "`+dmall <message>`"
     )
     .setFooter({
-      text: `Demandé via ${client.user.username}`
+      text: "Bot Help Menu"
     })
     .setTimestamp();
 }
@@ -569,6 +570,101 @@ if (cmd === "lock") {
   } catch (err) {
     console.error(err);
     return message.channel.send("❌ Impossible de verrouiller le salon.");
+  }
+}
+
+/* ADD */
+if (cmd === "add") {
+
+  let member =
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0]);
+
+  if (!member && args[0]) {
+    try {
+      member = await message.guild.members.fetch(args[0]);
+    } catch {}
+  }
+
+  if (!member) {
+    return message.channel.send(
+      "❌ Utilisateur introuvable."
+    );
+  }
+
+  try {
+
+    await message.channel.permissionOverwrites.edit(
+      member.id,
+      {
+        ViewChannel: true,
+        SendMessages: true,
+        ReadMessageHistory: true
+      }
+    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#57F287")
+      .setTitle("Utilisateur ajouté")
+      .setDescription(
+        `${member} a été ajouté à ce salon.`
+      )
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send(
+      "❌ Impossible d'ajouter cet utilisateur."
+    );
+  }
+}
+
+/* REMOVE */
+if (cmd === "remove") {
+
+  let member =
+    message.mentions.members.first() ||
+    message.guild.members.cache.get(args[0]);
+
+  if (!member && args[0]) {
+    try {
+      member = await message.guild.members.fetch(args[0]);
+    } catch {}
+  }
+
+  if (!member) {
+    return message.channel.send(
+      "❌ Utilisateur introuvable."
+    );
+  }
+
+  try {
+
+    await message.channel.permissionOverwrites.delete(
+      member.id
+    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#ED4245")
+      .setTitle("Utilisateur retiré")
+      .setDescription(
+        `${member} a été retiré de ce salon.`
+      )
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send(
+      "❌ Impossible de retirer cet utilisateur."
+    );
   }
 }
 
