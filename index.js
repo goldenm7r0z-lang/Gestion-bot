@@ -193,8 +193,17 @@ if (cmd === "pic" || cmd === "avatar") {
   });
 }
 
-  /* SAY */
-  if (cmd === "say") {
+/* SAY */
+if (cmd === "say") {
+
+  const ownerId = "1256656201488531550";
+
+  if (message.author.id !== ownerId) {
+    return message.reply(
+      "❌ Seul le propriétaire du bot peut utiliser cette commande."
+    );
+  }
+
   if (!args.length) {
     return message.reply("❌ Message manquant.");
   }
@@ -202,15 +211,16 @@ if (cmd === "pic" || cmd === "avatar") {
   const text = args.join(" ");
 
   try {
-    // supprime le message de l'utilisateur
+
     await message.delete().catch(() => {});
 
-    // envoie le message du bot
     return message.channel.send(text);
 
   } catch (err) {
     console.error(err);
-    return message.channel.send("❌ Erreur commande say.");
+    return message.channel.send(
+      "❌ Erreur commande say."
+    );
   }
 }
 
