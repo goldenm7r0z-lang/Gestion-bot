@@ -20,6 +20,14 @@ const client = new Client({
 
 const prefix = "+";
 
+const owners = [
+  "1256656201488531550"
+];
+
+function isOwner(message) {
+  return owners.includes(message.author.id);
+}
+
 /* ================= BLACKLIST ================= */
 
 const blacklist = {
@@ -590,6 +598,15 @@ if (cmd === "lock") {
 /* ADD */
 if (cmd === "add") {
 
+  if (
+    !isOwner(message) &&
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageChannels
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
   let member =
     message.mentions.members.first() ||
     message.guild.members.cache.get(args[0]);
@@ -623,6 +640,9 @@ if (cmd === "add") {
       .setDescription(
         `${member} a été ajouté à ce salon.`
       )
+      .setFooter({
+        text: `Ajouté par ${message.author.tag}`
+      })
       .setTimestamp();
 
     return message.channel.send({
