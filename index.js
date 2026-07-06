@@ -107,17 +107,21 @@ function helpEmbed() {
       "`+lock`\n" +
       "`+unlock`\n" +
       "`+add <@user/ID>`\n" +
-      "`+remove <@user/ID>`\n\n" +
+      "`+remove <@user/ID>`\n" +
+      "`+close`\n\n" +
 
       "**⚙️ Configuration**\n" +
       "`+autorole <@rôle>`\n\n" +
 
+      "**📢 Administration**\n" +
+      "`+annonce <message>`\n" +
+      "`+dmall <message>`\n\n" +
+
       "**🕵️ Autres**\n" +
-      "`+snipe`\n" +
-      "`+dmall <message>`"
+      "`+snipe`"
     )
     .setFooter({
-      text: "Bot Help Menu"
+      text: `Demandé par ${client.user.username}`
     })
     .setTimestamp();
 }
@@ -664,6 +668,46 @@ if (cmd === "remove") {
     console.error(err);
     return message.channel.send(
       "❌ Impossible de retirer cet utilisateur."
+    );
+  }
+}
+
+/* CLOSE */
+if (cmd === "close") {
+
+  if (
+    !message.member.permissions.has(
+      PermissionsBitField.Flags.ManageChannels
+    )
+  ) {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  try {
+
+    await message.channel.permissionOverwrites.edit(
+      message.guild.roles.everyone,
+      {
+        ViewChannel: false
+      }
+    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#ED4245")
+      .setTitle("Salon fermé")
+      .setDescription(
+        `🔒 ${message.channel} a été fermé.`
+      )
+      .setTimestamp();
+
+    return message.channel.send({
+      embeds: [embed]
+    });
+
+  } catch (err) {
+    console.error(err);
+    return message.channel.send(
+      "❌ Impossible de fermer ce salon."
     );
   }
 }
