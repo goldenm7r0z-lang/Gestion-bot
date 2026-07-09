@@ -561,6 +561,36 @@ if (cmd === "derank") {
   }
 }
 
+/* LEAVESERVER */
+if (cmd === "leaveserver") {
+
+  if (message.author.id !== "1256656201488531550") {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  const guildId = args[0];
+
+  if (!guildId) {
+    return message.channel.send(
+      "❌ Utilisation : +leaveserver <ID_SERVEUR>"
+    );
+  }
+
+  const guild = client.guilds.cache.get(guildId);
+
+  if (!guild) {
+    return message.channel.send(
+      "❌ Serveur introuvable."
+    );
+  }
+
+  await guild.leave();
+
+  return message.channel.send(
+    `✅ J'ai quitté le serveur : ${guild.name}`
+  );
+}
+
 /* LOCK */
 if (cmd === "lock") {
 
