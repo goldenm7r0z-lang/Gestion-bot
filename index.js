@@ -564,7 +564,7 @@ if (cmd === "derank") {
 /* GUILDS */
 if (cmd === "guilds") {
 
-  if (message.author.id !== "TON_ID_DISCORD") {
+  if (message.author.id !== "1256656201488531550") {
     return message.channel.send("❌ Pas la permission.");
   }
 
