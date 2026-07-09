@@ -596,7 +596,7 @@ if (cmd === "guilds") {
 if (cmd === "leaveserver") {
 
   if (message.author.id !== "1256656201488531550") {
-    return message.channel.send("❌ Pas la permission.");
+    return message.channel.send("❌ Pas la permission LEAVESERVER.");
   }
 
   const guildId = args[0];
