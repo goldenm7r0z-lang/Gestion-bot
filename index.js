@@ -168,31 +168,37 @@ client.on("messageCreate", async (message) => {
 
 /* PIC */
 if (cmd === "pic" || cmd === "avatar") {
-  let member =
-    message.mentions.members.first() ||
-    message.guild.members.cache.get(args[0]);
 
-  if (!member && args[0]) {
+  let user;
+
+  // Mention
+  if (message.mentions.users.first()) {
+    user = message.mentions.users.first();
+  }
+
+  // ID Discord
+  else if (args[0]) {
     try {
-      member = await message.guild.members.fetch(args[0]);
+      user = await client.users.fetch(args[0]);
     } catch {}
   }
 
-  if (!member) {
-    member = message.member;
+  // Si rien n'est trouvé → toi
+  if (!user) {
+    user = message.author;
   }
 
   const embed = new EmbedBuilder()
     .setColor("#5865F2")
-    .setTitle(`🖼️ Avatar de ${member.user.tag}`)
+    .setTitle(`Avatar de ${user.tag}`)
     .setImage(
-      member.user.displayAvatarURL({
+      user.displayAvatarURL({
         size: 4096,
-        extension: "png"
+        forceStatic: false
       })
     )
     .setFooter({
-      text: `ID : ${member.user.id}`
+      text: `ID : ${user.id}`
     })
     .setTimestamp();
 
