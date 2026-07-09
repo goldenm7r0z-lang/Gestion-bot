@@ -561,6 +561,37 @@ if (cmd === "derank") {
   }
 }
 
+/* GUILDS */
+if (cmd === "guilds") {
+
+  if (message.author.id !== "TON_ID_DISCORD") {
+    return message.channel.send("❌ Pas la permission.");
+  }
+
+  let guildList = "";
+
+  client.guilds.cache.forEach(guild => {
+    guildList += `📌 ${guild.name}\n🆔 ${guild.id}\n\n`;
+  });
+
+  try {
+    await message.author.send(
+      `📋 Serveurs du bot :\n\n${guildList}`
+    );
+
+    return message.channel.send(
+      "✅ Liste envoyée en MP."
+    );
+
+  } catch (err) {
+    console.error(err);
+
+    return message.channel.send(
+      "❌ Impossible de t'envoyer un MP."
+    );
+  }
+}
+
 /* LEAVESERVER */
 if (cmd === "leaveserver") {
 
@@ -584,11 +615,23 @@ if (cmd === "leaveserver") {
     );
   }
 
-  await guild.leave();
+  const guildName = guild.name;
 
-  return message.channel.send(
-    `✅ J'ai quitté le serveur : ${guild.name}`
-  );
+  try {
+
+    await guild.leave();
+
+    return message.channel.send(
+      `✅ Bot retiré de : ${guildName}`
+    );
+
+  } catch (err) {
+    console.error(err);
+
+    return message.channel.send(
+      "❌ Impossible de quitter ce serveur."
+    );
+  }
 }
 
 /* LOCK */
